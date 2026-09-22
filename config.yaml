@@ -1,0 +1,60 @@
+model:
+  emb_dim: 768
+  fp_dim: 512
+  gene_dim: auto        # automatically set according to gene expression input shape
+  hidden_dim: 256
+  num_classes: 6
+
+  transformer:
+    layers: 2
+    heads: 2
+    feedforward_dim: 1024
+    dropout: 0.3
+
+  classifier:
+    dropout: 0.4
+
+training:
+  epochs: 50
+  batch_size: 256
+  device: auto     # cuda if available, otherwise cpu
+
+  optimizer:
+    type: AdamW
+    lr: 0.001
+    weight_decay: 1e-5
+
+  scheduler:
+    type: CosineAnnealingLR
+    T_max: 50
+
+loss:
+  type: ClassContrastiveLoss
+  w_con: 0.1
+  con_temperature: 0.8
+  label_smoothing: 0.0
+
+cross_validation:
+  mode: 2          # 1: random CV, 2: grouped by cell line, 3: grouped by drug pairs
+
+# DeepDDS hyperparameters (for reference only; main_deepdds.py uses hard-coded values)
+deepdds:
+  gnn_type: gat          # gcn or gat
+  node_dim: 34           # atom feature dimension
+  gnn_hidden_dims: [156, 156]
+  gnn_heads: 4           # must divide intermediate hidden dim
+  gnn_dropout: 0.3
+  drug_out_dim: 156
+  gene_hidden_dim: 156
+  classifier_hidden_dims: [1024, 512]
+  classifier_dropout: 0.4
+  num_classes: 6
+  batch_size: 128
+  lr: 1.0e-4
+  weight_decay: 1.0e-5
+
+data:
+  smiles_model: ChemBERTa-zinc-base-v1
+  drug_file: ./GDSC_Combo_data/drug_info.csv
+  gene_file: ./GDSC_Combo_data/omics_expression.csv
+  synergy_file: ./GDSC_Combo_data/synergy_data.csv
